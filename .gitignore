@@ -1,0 +1,79 @@
+# === Models / heavy artifacts (live on Hugging Face, not GitHub) ===
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.gguf
+*.ckpt
+*.onnx
+
+# === HF cache + transient ===
+.cache/
+hf-cache/
+hf_home/
+**/.cache/
+
+# === Secrets / credentials ===
+.env
+.env.*
+!.env.example
+**/token
+**/.cache/huggingface/token
+*.pem
+*.key
+.aws/
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+env/
+.python-version
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+build/
+dist/
+pip-wheel-metadata/
+
+# === Notebook noise ===
+.ipynb_checkpoints/
+*.ipynb_meta
+
+# === vLLM / training transient ===
+ray_session/
+ray_results/
+checkpoint-*/
+adapter_model.safetensors
+sft_runs/
+output/
+merged/
+
+# === Data we explicitly do NOT ship ===
+data/raw/
+data/intermediate/
+data/scratch/
+
+# === Logs ===
+*.log
+logs/
+nohup.out
+out/
+
+# === OS / editor ===
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# === Misc ===
+tmp/
+temp/
+scratch/

@@ -1,0 +1,13 @@
+# Python 3.11+ recommended
+# Install with: pip install -r requirements.txt
+torch>=2.6.0
+transformers>=4.51.0
+peft>=0.13.0
+trl==0.29.1
+accelerate>=1.0.0
+datasets>=3.0.0
+huggingface_hub>=0.26.0
+backoff>=2.2.1
+openai>=1.50.0
+sentencepiece>=0.2.0
+protobuf>=4.25.0

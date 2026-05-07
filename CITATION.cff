@@ -1,0 +1,56 @@
+cff-version: 1.2.0
+title: "CyberSecQwen-4B: A Compact CTI Specialist Fine-Tuned from Qwen3-4B-Instruct-2507 on AMD MI300X"
+type: software
+authors:
+  - family-names: Mulia
+    given-names: Samuel
+    alias: athena129
+date-released: 2026-05-07
+url: "https://github.com/GPT-64590/CyberSecQwen-4B"
+repository-code: "https://github.com/GPT-64590/CyberSecQwen-4B"
+repository-artifact: "https://huggingface.co/athena129/CyberSecQwen-4B"
+license: Apache-2.0
+keywords:
+  - cybersecurity
+  - cti
+  - cwe-classification
+  - fine-tuning
+  - lora
+  - qwen
+  - amd
+  - mi300x
+  - rocm
+  - flash-attention-2
+abstract: >
+  CyberSecQwen-4B is a 4B-parameter language model fine-tuned from
+  Qwen3-4B-Instruct-2507 for CWE classification and cyber threat intelligence
+  multiple-choice tasks. Trained, merged, and evaluated end-to-end on a single
+  AMD Instinct MI300X 192 GB instance via ROCm + vLLM + FlashAttention-2.
+  Under Cisco's Foundation-Sec evaluation protocol (arXiv:2504.21039), it
+  retains 97.3% of Foundation-Sec-Instruct-8B's CTI-RCM accuracy at half the
+  parameter count, while exceeding its CTI-MCQ by +8.7 points (5-trial mean).
+  Companion model Gemma4Defense-2B trained with the same recipe on
+  Gemma-4-E2B-it converges to within 0.9 points on CTI-RCM, demonstrating
+  recipe portability across model families.
+references:
+  - type: article
+    title: "Foundation-Sec-8B: A Cybersecurity-Specialized Language Model"
+    authors:
+      - name: Cisco Foundation AI
+    year: 2025
+    journal: arXiv preprint
+    notes: arXiv:2504.21039
+    url: https://arxiv.org/abs/2504.21039
+  - type: misc
+    title: "CTI-Bench: A Benchmark Suite for Cybersecurity LLMs"
+    authors:
+      - family-names: Alam
+        given-names: Md Tanvirul
+      - family-names: Bhusal
+        given-names: Dipkamal
+      - family-names: Park
+        given-names: Youngja
+      - family-names: Rastogi
+        given-names: Nidhi
+    year: 2024
+    url: https://github.com/xashru/cti-bench
