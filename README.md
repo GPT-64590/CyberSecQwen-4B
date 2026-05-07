@@ -109,6 +109,68 @@ The released checkpoint was trained end-to-end on a single AMD Instinct MI300X 1
 
 ---
 
+## AMD MI300X — what we used and what we optimized
+
+The released CyberSecQwen-4B checkpoint was trained, merged, and evaluated **end-to-end on a single AMD Instinct MI300X 192 GB instance** via the AMD Developer Cloud (`atl1` region). No multi-node, no NVIDIA hardware, no cross-platform porting. This section summarizes the optimization choices that made the pipeline work on the AMD stack; full setup specifics are in [`docs/HARDWARE.md`](docs/HARDWARE.md).
+
+### Stack
+
+| Component | Version |
+|---|---|
+| Hardware | AMD Instinct MI300X 192 GB (gfx942) |
+| ROCm | 7.0 |
+| Docker image | `vllm/vllm-openai-rocm:latest` |
+| PyTorch | 2.6.0 (ROCm) |
+| flash-attn | 2.8.3 (preinstalled in the vLLM ROCm image) |
+| vLLM | 0.10.1 |
+
+The vLLM ROCm Docker image ships everything needed (PyTorch ROCm, flash-attn 2.8.3, AMD libraries, transformers, peft, trl is `pip install`'d). One container, one GPU, full pipeline.
+
+### Optimizations we used
+
+1. **FlashAttention-2 enabled in training.** Qwen3-4B's attention head dimension (128) fits within the AMD `gfx942` LDS budget, so `attn_implementation="flash_attention_2"` works out of the box via flash-attn 2.8.3. Empirical measurement: ~7.85 s/step at LoRA r=64, max_seq_len=4096 — about **1.6× faster than the same recipe on Gemma-4 (head_dim=512, FA2 unavailable, falls back to sdpa)**.
+
+2. **TRITON_ATTN backend for vLLM inference.** `--attention-backend TRITON_ATTN` is the recommended inference attention backend on MI300X for Qwen3-class models. Stable, no kernel-compile surprises.
+
+3. **bf16 throughout.** No mixed-precision dance needed; bf16 is the native training and inference precision on MI300X.
+
+4. **AITER kernels for matmul.** `VLLM_ROCM_USE_AITER=1` plus `TORCH_BLAS_PREFER_HIPBLASLT=1` for matmul throughput. (Note: this works for Qwen3 dense models — it does NOT work for gpt-oss-20b MoE models, where `AITER=0` is required. We hit this serving CyberPal-2.0-20B during recipe-development experiments.)
+
+5. **Prefix caching for vLLM serving.** `--enable-prefix-caching` improves throughput when batches share a system or instruction prefix — relevant for any production deployment that wraps the model in a fixed-prompt template.
+
+6. **`HF_HUB_ENABLE_HF_TRANSFER=1` for model push/pull.** The Rust-based multipart upload saturates the link to Hugging Face at ~240 MB/s on the AMD Developer Cloud `atl1` link — the 8 GB merged model uploads in ~36 seconds.
+
+7. **`HIP_FORCE_DEV_KERNARG=1`** + AMD's recommended `PYTORCH_ROCM_ARCH='gfx90a;gfx942;gfx950'` for the device-kernel-args optimization.
+
+### What does NOT work on the AMD stack (worth knowing)
+
+These are not blockers for CyberSecQwen-4B, but they are real constraints that surfaced during the broader project:
+
+- **FA2-CK on Gemma-4 (head_dim=512).** Falls back to sdpa. The companion [Gemma4Defense-2B](https://github.com/GPT-64590/Gemma4Defense-2B) repo trains with sdpa for this reason.
+- **AITER kernels on gpt-oss-style MoE.** `VLLM_ROCM_USE_AITER=0` is required when serving CyberPal-2.0-20B (gpt-oss base) on MI300X.
+- **bitsandbytes on ROCm.** Not officially supported. We did not test 4-bit/8-bit quantization on AMD; community ROCm forks exist but are not validated by the authors of this release.
+
+### Inference (AMD MI300X)
+
+```bash
+docker run --rm --network=host --device=/dev/kfd --device=/dev/dri \
+  -e VLLM_ROCM_USE_AITER=1 -e TORCH_BLAS_PREFER_HIPBLASLT=1 \
+  vllm/vllm-openai-rocm:latest \
+  --model athena129/CyberSecQwen-4B \
+  --served-model-name cybersecqwen-4b \
+  --attention-backend TRITON_ATTN \
+  --dtype bfloat16 \
+  --max-model-len 4096 \
+  --enable-prefix-caching \
+  --gpu-memory-utilization 0.9
+```
+
+For the full set of environment variables, training-time gotchas, and pipeline timing measurements: see [`docs/HARDWARE.md`](docs/HARDWARE.md).
+
+### Hardware portability
+
+The training recipe in `train.sh` is hardware-agnostic. To run on NVIDIA A100 / H100, drop the AMD-specific environment variables (they're no-ops there) and use a regular Python venv with `pip install flash-attn --no-build-isolation` for FA2. NVIDIA users will need 24 GB+ VRAM for training and 12 GB+ for inference, same as MI300X minimums.
+
 ## Repository structure
 
 ```
