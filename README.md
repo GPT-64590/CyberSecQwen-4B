@@ -14,6 +14,22 @@ This repository contains everything needed to reproduce the model on AMD hardwar
 
 ---
 
+## Contents
+
+- [Headline benchmark results](#headline-benchmark-results)
+- [Quick start (inference)](#quick-start-inference)
+  - [vLLM serving (AMD MI300X)](#vllm-serving-amd-mi300x)
+- [Reproducibility](#reproducibility)
+- [AMD MI300X — what we used and what we optimized](#amd-mi300x--what-we-used-and-what-we-optimized)
+- [Repository structure](#repository-structure)
+- [Methodology summary](#methodology-summary)
+- [Limitations and intended use](#limitations-and-intended-use)
+- [Citation](#citation)
+- [License](#license)
+- [Companion model](#companion-model)
+
+---
+
 ## Headline benchmark results
 
 5 trials per cell, temperature 0.3, no system prompt, dataset-`Prompt`-column-as-user-message. Mean ± standard deviation.
