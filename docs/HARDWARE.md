@@ -105,9 +105,9 @@ Notes:
 
 ## Hardware portability
 
-The training recipe is hardware-agnostic. To run on NVIDIA A100 or H100, you only need to:
-- Drop the AMD-specific environment variables (none of them harm NVIDIA, but they're no-ops there)
+The training recipe is hardware-agnostic. To run on a non-AMD GPU stack, you only need to:
+- Drop the AMD-specific environment variables (they're no-ops elsewhere)
 - Use the standard PyTorch + transformers + peft stack without the vLLM ROCm Docker image (a regular Python venv works)
 - FA2 works the same way: `attn_implementation="flash_attention_2"` in the trainer
 
-The 12 GB+ VRAM minimum for inference and 24 GB+ for training apply equally to NVIDIA hardware.
+The 12 GB+ VRAM minimum for inference and 24 GB+ for training apply equally on any vendor's hardware.

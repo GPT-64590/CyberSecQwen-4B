@@ -1,6 +1,6 @@
 # CyberSecQwen-4B
 
-[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-CyberSecQwen--4B-yellow)](https://huggingface.co/athena129/CyberSecQwen-4B)
+[![Model Card](https://img.shields.io/badge/Model%20Card-CyberSecQwen--4B-yellow)](https://huggingface.co/athena129/CyberSecQwen-4B)
 [![Companion](https://img.shields.io/badge/Companion-Gemma4Defense--2B-blue)](https://github.com/GPT-64590/Gemma4Defense-2B)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
 [![AMD MI300X](https://img.shields.io/badge/trained%20on-AMD%20MI300X-red)](docs/HARDWARE.md)
@@ -118,16 +118,16 @@ bash eval.sh
 
 **System requirements** for full reproduction:
 - 1× GPU with ≥ 24 GB VRAM (training) or ≥ 12 GB VRAM (inference only)
-- Python 3.11+, PyTorch 2.6+, CUDA / ROCm 7
+- Python 3.11+, PyTorch 2.6+, ROCm 7 (or an equivalent modern PyTorch GPU stack)
 - ~50 GB disk for HF cache and intermediate artifacts
 
-The released checkpoint was trained end-to-end on a single AMD Instinct MI300X 192 GB instance via the AMD Developer Cloud, using `vllm/vllm-openai-rocm:latest` Docker image. The recipe is hardware-agnostic and will run on NVIDIA A100/H100 with minor environment-variable changes; the AMD-specific paths are documented in [`docs/HARDWARE.md`](docs/HARDWARE.md).
+The released checkpoint was trained end-to-end on a single AMD Instinct MI300X 192 GB instance via the AMD Developer Cloud, using `vllm/vllm-openai-rocm:latest` Docker image. The recipe is hardware-agnostic and will run on other modern GPU stacks with minor environment-variable changes; the AMD-specific paths are documented in [`docs/HARDWARE.md`](docs/HARDWARE.md).
 
 ---
 
 ## AMD MI300X — what we used and what we optimized
 
-The released CyberSecQwen-4B checkpoint was trained, merged, and evaluated **end-to-end on a single AMD Instinct MI300X 192 GB instance** via the AMD Developer Cloud (`atl1` region). No multi-node, no NVIDIA hardware, no cross-platform porting. This section summarizes the optimization choices that made the pipeline work on the AMD stack; full setup specifics are in [`docs/HARDWARE.md`](docs/HARDWARE.md).
+The released CyberSecQwen-4B checkpoint was trained, merged, and evaluated **end-to-end on a single AMD Instinct MI300X 192 GB instance** via the AMD Developer Cloud (`atl1` region). No multi-node, no cross-platform porting. This section summarizes the optimization choices that made the pipeline work on the AMD stack; full setup specifics are in [`docs/HARDWARE.md`](docs/HARDWARE.md).
 
 ### Stack
 
@@ -185,7 +185,7 @@ For the full set of environment variables, training-time gotchas, and pipeline t
 
 ### Hardware portability
 
-The training recipe in `train.sh` is hardware-agnostic. To run on NVIDIA A100 / H100, drop the AMD-specific environment variables (they're no-ops there) and use a regular Python venv with `pip install flash-attn --no-build-isolation` for FA2. NVIDIA users will need 24 GB+ VRAM for training and 12 GB+ for inference, same as MI300X minimums.
+The training recipe in `train.sh` is hardware-agnostic. To run on a non-AMD GPU stack, drop the AMD-specific environment variables (they're no-ops elsewhere) and use a regular Python venv with `pip install flash-attn --no-build-isolation` for FA2. The 24 GB+ VRAM training minimum and 12 GB+ inference minimum apply equally on any vendor's hardware.
 
 ## Repository structure
 
